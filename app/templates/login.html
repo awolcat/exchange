@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form action = "/login" method = "POST">
+    <div class="form-group">
+        <label for="mpesa_number">M-Pesa Number</label>
+        <input type="tel" class="form-control" id="mpesa_numberId" name="mpesa_number" aria-describedby="mpesa_numberHelp" placeholder="jdean@example.com" required minLength=10 maxLength=10>
+        <small id="mpesa_numberHelp" class="form-text text-muted"></small>
+    </div>
+
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" class="form-control" id="passwordId" name="password" aria-describedby="passwordHelp" required minLength=8>
+        <small id="passwordHelp" class="form-text text-muted"></small>
+    </div>
+	<button type="submit" class="btn btn-primary">Submit</button>
+
+</form>
+{% endblock %}
