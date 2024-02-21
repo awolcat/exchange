@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <div class="notification is-danger">
+        {{ messages[0] }}
+    </div>
+{% endif %}
+{% endwith %}
+<form action = "/card" method = "POST">
+  <div class="row">
+    <div class="form-group col">
+        <label for="firstname">First Name</label>
+	<input type="text" class="form-control" id="firstnameId" name="firstname" value={{current_user.firstname}} aria-describedby="firstnameHelp" disabled required>
+        <small id="firstnameHelp" class="form-text text-muted"></small>
+    </div>
+
+    <div class="form-group col">
+        <label for="lastname">Last Name</label>
+        <input type="text" class="form-control" id="lastnameId" name="lastname" value={{current_user.lastname}} aria-describedby="lastnameHelp" disabled required>
+        <small id="lastnameHelp" class="form-text text-muted"></small>
+    </div>
+  </div>
+
+    <div class="form-group">
+        <label for="card_number">Card Number</label>
+        <input type="tel" class="form-control" id="card_numberId" name="card_number" aria-describedby="card_numberHelp" inputmode="numeric" pattern="[0-9\s]{13,19}" placeholder="" maxLength=19 required>
+        <small id="card_numberHelp" class="form-text text-muted"></small>
+    </div>
+
+  <div class="row">
+    <div class="form-group col">
+        <label for="country">Country</label>
+        <input type="text" class="form-control" id="countryId" name="country" aria-describedby="countryHelp" required minLength=2 maxLength=2 pattern="[A-Z]{2}" placeholder="UK">
+        <small id="countryHelp" class="form-text text-muted">Country where card was issued</small>
+    </div>
+
+    <div class="form-group col">
+        <label for="currency">Currency</label>
+        <input type="text" class="form-control" id="currencyId" name="currency" aria-describedby="currencyHelp" required minLength=3 maxLength=3 pattern="[A-Z]{3}" placeholder="GBP">
+        <small id="countryHelp" class="form-text text-muted">Card currency</small>
+    </div>
+
+    <div class="form-group col">
+        <label for="cvv">CVV</label>
+        <input type="text" class="form-control" id="cvvId" name="cvv" aria-describedby="cvvHelp" inputmode="numeric" minLength=3 maxLength=3 pattern="[0-9]{3}" placeholder="826">
+        <small id="cvvHelp" class="form-text text-muted"></small>
+    </div>
+
+    <div class="form-group col">
+        <label for="expiry">Expiry</label>
+	<input type="text" class="form-control" id="expiryId" name="expiry" aria-describedby="expiryHelp" minLength=5 maxLength=5 pattern="[0-9]{2}/[0-9]{2}" placeholder="01/25">
+        <small id="expiryHelp" class="form-text text-muted"></small>
+    </div>
+  </div>
+	<button type="submit" class="btn btn-primary">Submit</button>
+
+</form>
+{% endblock %}

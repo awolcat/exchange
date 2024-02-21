@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <div class="notification is-danger">
+        {{ messages[0] }}
+    </div>
+{% endif %}
+{% endwith %}
 <form action = "/register" method = "POST">
     <div class="form-group">
         <label for="firstname">First Name</label>

@@ -34,7 +34,7 @@ class TokenManager():
     def get_token(self):
         if not redisClient.get('gp_token'):
             self.refresh_token()
-        return self.token
+        return redisClient.get('gp_token')
 
     def refresh_token(self):
         response = requests.post(

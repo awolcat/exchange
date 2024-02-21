@@ -12,11 +12,14 @@ class RedisClient():
     def isAlive(self):
         return self.client.ping()
 
-    def retrieve(self, key):
+    def get(self, key):
         return self.client.get(key)
 
-    def insert(self, key, value, expiry):
+    def set(self, key, value, expiry):
         return self.client.set(key, value, ex=expiry)
+
+    def delete(self, key):
+        return self.client.delete(key)
 
 
 redisClient = RedisClient()

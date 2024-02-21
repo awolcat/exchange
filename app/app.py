@@ -1,17 +1,28 @@
 #!/usr/bin/env python3
 
 import hashlib
-from flask import Flask, render_template, request, flash, session
+from datetime import timedelta
+from flask import Flask, render_template, request, flash, session, redirect, url_for
 from flask_session import Session
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from uuid import uuid4
 from utils.db_client import dbClient
 from utils.redis import redisClient
+from models.user import User
+from globalpayments.gp import GP
+
+
+login_manager = LoginManager()
+login_manager.login_view = 'login'
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'big secret'
-app.config['SESSION_TYPE'] = 'redis'
-app.config['SESSION_REDIS'] = redisClient.client
 
-Session(app)
+# app.config['SESSION_TYPE'] = 'redis'
+# app.config['SESSION_REDIS'] = redisClient.client
+
+# Session(app)
+login_manager.init_app(app)
 
 @app.route('/register', methods=['GET', 'POST'], strict_slashes=False)
 def register():
@@ -26,10 +37,10 @@ def register():
                }
         db_user = dbClient.db.users.find_one({'number': user['number']})
         if db_user:
-            return 'A user has already registered this number', 401
+            flash('This number is already registered')
         userId = dbClient.db.users.insert_one(user).inserted_id
 
-        return render_template('signup.html', user=user)
+        return redirect(url_for('login'))
     return render_template('signup.html')
 
 @app.route('/login', methods=['GET', 'POST'], strict_slashes=False)
@@ -43,18 +54,51 @@ def login():
             flash('No User Found')
             return render_template(login.html)
         user['_id'] = str(user['_id'])
-        if user['password'] == password:
-            session['user'] = user
+        user_obj = User(**user)
+        if user_obj.password == password:
+            login_user(user_obj, duration=timedelta(minutes=30))
             flash('Login Success!')
-            return 'Hallo'
+            return redirect(url_for('card'))
         else:
-            return 'No BUENO'
+            flash('Wrong username or password')
     return render_template('login.html')
 
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
+
 @app.route('/logout', strict_slashes=False)
+@login_required
 def logout():
-    flag = session.pop('user', None)
+    logout_user()
     return render_template('login.html')
+
+@app.route('/card', methods=['GET', 'POST'], strict_slashes=False)
+@login_required
+def card():
+    if request.method == 'POST':
+        form = request.form
+        card = {
+                'card_number': form['card_number'],
+                'expiry': form['expiry'],
+                'cvv': form['cvv'],
+                'country': form['country'],
+                'currency': form['currency'],
+               }
+        gp_client = GP(**card)
+        verification = gp_client.verify()
+        if verification.get('status') == 'VERIFIED':
+            card_data = gp_client.store()
+            card.update([('user_id', current_user.id),
+                         ('payment_token', card_data['id']),
+                         ('brand', card_data['card']['brand']),
+                         ('masked_card_number', card_data['card']['masked_number_last4'])
+                        ])
+            dbClient.db.cards.insert_one(card)
+            print(card)
+        else:
+            flash('There was a problem adding this card. Try again in a few minutes or try another card.')
+    return render_template('card_form.html')
 
 
 if __name__ == '__main__':
