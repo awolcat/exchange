@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="column is-4 is-offset-4">
+    <h3 class="title">Send to M-Pesa</h3>
+    <div class="box">
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <div class="notification is-danger">
+        {{ messages[0] }}
+    </div>
+{% endif %}
+{% endwith %}
+<form action = "/payments" method = "POST" id="payments_form">
+    <div class="form-group">
+        <label for="card_selectId">Select a Card</label>
+        <select name="card_select" class="form-control" id="card_selectId" form="payments_form" required size=0>
+  	    <option value="">--Please choose an option--</option>
+	    {% for card in cards %}
+	    <option value={{ card['masked_card_number']+'-'+card['currency'] }}>
+		{{ card['masked_card_number']+' --- '+card['brand'] }}
+	    </option>
+	    {% endfor %}
+        </select>
+	<small id="card_selectHelp" class="form-text text-muted"></small>
+    </div>
+
+    <input type="text" class="form-control" id="selectionId" name="selection" value="" hidden>
+
+    <div class="form-group">
+        <label for="amountId" id="amount_label">Amount</label>
+        <input type="text" class="form-control" id="amountId" name="amount" inputmode="numeric" aria-describedby="amountHelp" required maxLength=5>
+        <small id="passwordHelp" class="form-text text-muted"></small>
+    </div>
+	<button type="submit" class="button is-block is-info is-large is-fullwidth">Submit</button>
+
+</form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/scripts/payments.js"></script>
+{% endblock %}

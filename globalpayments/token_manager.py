@@ -44,6 +44,5 @@ class TokenManager():
                                 )
         token = response.json().get('token')
         redisClient.set('gp_token', token, 3600 * 23)
-        self.token = token
 
 tokenManager = TokenManager()

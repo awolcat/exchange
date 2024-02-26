@@ -1,0 +1,4 @@
+[ZoneTransfer]
+ZoneId=3
+ReferrerUrl=https://developer.safaricom.co.ke/Documentation
+HostUrl=https://developer.safaricom.co.ke/api/v1/GenerateSecurityCredential/SandboxCertificate.cer
