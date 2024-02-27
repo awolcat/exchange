@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 import hashlib
-from datetime import timedelta
+from datetime import timedelta, datetime
+from bson.objectid import ObjectId
 from flask import Flask, render_template, request, flash, session, redirect, url_for
 from flask_session import Session
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -11,6 +12,8 @@ from utils.redis import redisClient
 from models.user import User
 from globalpayments.gp import GP
 from mpesa.b2c import b2c
+from utils.currency_rate import rates
+
 
 login_manager = LoginManager()
 login_manager.login_view = 'login'
@@ -23,6 +26,10 @@ app.config['SECRET_KEY'] = 'big secret'
 
 # Session(app)
 login_manager.init_app(app)
+
+@app.errorhandler(404)
+def handle(error):
+    return {'error': 'Not Found'}
 
 @app.route('/register', methods=['GET', 'POST'], strict_slashes=False)
 def register():
@@ -65,7 +72,7 @@ def login():
             user_cards.close()
             if length > 0:
                 return redirect(url_for('change'))
-            return redirect(url_for('card'))
+            return redirect(url_for('me'))
         else:
             flash('Wrong username or password')
     return render_template('login.html')
@@ -80,6 +87,19 @@ def logout():
     logout_user()
     return render_template('login.html')
 
+@app.route('/me')
+@login_required
+def me():
+    user = dbClient.db.users.find_one({'_id': ObjectId(current_user.id)})
+    user['_id'] = str(user['_id'])
+    user = User(**user)
+    cards_curs = dbClient.db.users.find({'user_id': user.id})
+    cards = [c for c in cards_curs]
+    cards_curs.close()
+    transactions_c = dbClient.db.transactions.find({'user_id': user.id})
+    transactions = [t for t in transactions_c]
+    return render_template('profile.html', cards=cards, user=user, transactions=transactions)
+
 @app.route('/card', methods=['GET', 'POST'], strict_slashes=False)
 @login_required
 def card():
@@ -91,39 +111,69 @@ def card():
                 'cvv': form['cvv'],
                }
         gp_client = GP(**card)
-        verification = gp_client.verify()
-        if verification.get('status') == 'VERIFIED':
-            card_data = gp_client.store()
-            card.update([('user_id', current_user.id),
+        try:
+            verification = gp_client.verify()
+            dcc_check = gp_client.dcc(200)
+            if verification.get('status') == 'VERIFIED':
+                card_data = gp_client.store()
+                card.update([('user_id', current_user.id),
                          ('payment_token', card_data['id']),
                          ('brand', card_data['card']['brand']),
-                         ('masked_card_number', card_data['card']['masked_number_last4'])
+                         ('masked_card_number', card_data['card']['masked_number_last4']),
+                         ('card_currency', dcc_check['payer_currrency']),
                         ])
-            dbClient.db.cards.insert_one(card)
-            return redirect(url_for('change'))
-        else:
+                dbClient.db.cards.insert_one(card)
+                return redirect(url_for('change'))
+        except Exception:
             flash('There was a problem adding this card. Try again in a few minutes or try another card.')
     return render_template('card_form.html')
 
 @app.route('/payments', methods=['GET', 'POST'], strict_slashes=False)
 @login_required
 def change():
+
     cards_cursor = dbClient.db.cards.find({'user_id': current_user.id})
     cards = [card for card in cards_cursor]
     cards_cursor.close()
+    cards = rates(cards)
     if request.method == 'POST':
         amount = request.form['amount']
         masked_card = request.form['selection']
         for c in cards:
             if c['masked_card_number'] == masked_card:
                 card = c
+        if not card:
+            abort(404)
         gp_client = GP(**card)
-        #print('VERIFY', gp_client.verify(), end='\n')
-        #response2 = gp_client.dcc(amount, current_user.id)
         response = gp_client.transact(amount)
-        print(response)
-        #b2c()
-        #print(response2)
+        if response['action']['result_code'] == 'SUCCESS':
+            dbClient.db.transactions.insert_one({
+                                                 'user_id': current_user.id,
+                                                 'gp_reference': response['reference'],
+                                                 'amount': amount,
+                                                 'datetime': datetime.now(timezone.utc).isoformat()
+                                                 })
+            for cc in cards:
+                if cc['masked_card_number'] == card['masked_number']:
+                    selected_cc = cc
+            
+            kes_amt = selected_cc['blended_rate'] * int(amount)
+            try:
+                b2c_response = b2c(kes_amount)
+                dbClient.db.transactions.update_one({'gp_reference': response['reference']},
+                                                    { '$set': {
+                                                               'masked_card': selected_cc['masked_card_number'],
+                                                               'mpesa_reference': b2c_response['ConversationID'],
+                                                               'card_curency': selected_cc['card_currency'],
+                                                               'kes_amount': kes_amount,
+                                                              }
+                                                    })
+                flash('Transaction successful!')
+                print(b2c_response)
+                return render_template('payments.html', cards=cards)
+            except Exception:
+                # retry mpesa b2c
+                flash('Your card was debited, but the Mpesa transaction failed. Send us the transaction reference to request a refund')
     return render_template('payments.html', cards=cards)
 
 @app.route('/b2c', methods=['GET', 'POST'])

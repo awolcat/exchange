@@ -84,15 +84,13 @@ class GP():
                                             }
                                   }
               }
-        pprint.pprint(body)
-        print()
         response = requests.post(url, headers=GP.headers, json=body)
         return response.json()
 
 
     def transact(self, amount):
         dcc_check = self.dcc(amount)
-        dcc_id = dcc_check.get('id', None)
+        dcc_id = dcc_check.get('status', None)
         url = f'{GP.api}transactions'
 
         body = {
@@ -112,7 +110,7 @@ class GP():
                                             }
                                    }
                 }
-        if dcc_id is not None:
+        if dcc_id == 'AVAILABLE':
             temp = {'currency_conversion': {'id': dcc_id}, }
             body.update(temp)
         response = requests.post(url, headers=GP.headers, json=body)

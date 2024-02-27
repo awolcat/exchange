@@ -10,7 +10,7 @@ from base64 import b64encode
 
 security_credential = "d8kSHir0tMGn0cNo50b6ApgWU9Q9sMxTg5Volu6rqk6sWgznutz2tNbuo8xfHdoBRyl0R//FouFK5flDEjnMuUjuKaGD5N/UbaTUsDQPXHPngbYYdcyMZksIvffwXsCj/yqLGdxKdZFAcxH76LgVxFGBYmFa4zrnPNfEyTaUvtXqp4cb2C/2et2rVgRokrVfleuOJIvZ5npHLQmnBqHWGwmZw/W4Mv0VoXc7BwLNmm2a7qlpg9DgLKZ3uqgnjjEZLB+IPTRLbrsJ5+oQ0m/26DzyO4dok1b5YJlV6uWLk4IxE+T0dWbzXtOOis7pHRr+xh1t2w6ILvs3BB8mGO3qqA=="
 
-def b2c():
+def b2c(amount):
 
     token = MPESAToken().get_token()
     headers = {
@@ -32,7 +32,7 @@ def b2c():
                "InitiatorName": "testapi",
                "SecurityCredential": security_cred,
                "CommandID": "BusinessPayment",
-               "Amount": 10,
+               "Amount": amount,
                "PartyA": 600999,
                "PartyB": 254708374149,
                "Remarks": "Test remarks",
