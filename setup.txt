@@ -8,6 +8,10 @@ MPesa credentials:
 	username = "XNnNSz3TmyFsSJ1C7bwktTQht8TwxrRtrA0GusxrdYLGfcOq"
 	password = "Ukln6WdcnXsXS4PTKgHWOk9nuSAWJ2ApeFx8lDBgAuhSXUUmSGfNi5G0dvhjDKBe"
 
+MPesa transaction response urls:
+	"QueueTimeOutURL": "https://clear-hopefully-ladybird.ngrok-free.app/b2ctimeout",
+        "ResultURL": "https://clear-hopefully-ladybird.ngrok-free.app/b2cresult",
+
 GlobalPay creadentials:
 	app_id = 'n1ieSIBgznD9J6NK7lJ6Y3WivSCsG50s'
 	app_key = 'HY0XBroPop0x2efG'

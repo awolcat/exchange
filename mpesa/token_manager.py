@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 
 import requests
+import os
 import base64
 from utils.redis import redisClient
 
 class MPESAToken():
     url = "https://sandbox.safaricom.co.ke/oauth/v1/generate"
-    username = "XNnNSz3TmyFsSJ1C7bwktTQht8TwxrRtrA0GusxrdYLGfcOq"
-    password = "Ukln6WdcnXsXS4PTKgHWOk9nuSAWJ2ApeFx8lDBgAuhSXUUmSGfNi5G0dvhjDKBe"
+    username = os.getenv('USERNAME')  #"XNnNSz3TmyFsSJ1C7bwktTQht8TwxrRtrA0GusxrdYLGfcOq"
+    password = os.getenv('PASSWORD')  #"Ukln6WdcnXsXS4PTKgHWOk9nuSAWJ2ApeFx8lDBgAuhSXUUmSGfNi5G0dvhjDKBe"
     token = base64.b64encode(f"{username}:{password}".encode()).decode()
     headers = {"Authorization": f"Basic {token}"}
     params = {"grant_type": "client_credentials"}

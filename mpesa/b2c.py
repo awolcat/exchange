@@ -16,7 +16,7 @@ def b2c(amount):
                'Content-Type': 'application/json',
                'Authorization': f'Bearer {token}'
               }
-    initiator_pwd = "Safaricom999!*!"
+    initiator_pwd = os.getenv('INITIATOR_PWD')  #"Safaricom999!*!"
     folder = os.getcwd()
     cert_path = f"{folder}/mpesa/SandboxCertificate.cer"
     with open(cert_path, encoding='utf-8') as f:
@@ -26,6 +26,10 @@ def b2c(amount):
         cryptography_key = pkey.to_cryptography_key()
         credential = cryptography_key.encrypt(initiator_pwd.encode('utf-8'), padding.PKCS1v15())
         security_cred = b64encode(credential).decode()
+    mpesa_response_url = os.getenv('BASE_URL')
+    print(mpesa_response_url)
+    timeout_url = f'{mpesa_response_url}b2ctimeout'
+    result_url = f'{mpesa_response_url}b2cresult'
     payload = {
                "OriginatorConversationID": str(uuid4()),
                "InitiatorName": "testapi",
@@ -35,8 +39,8 @@ def b2c(amount):
                "PartyA": 600999,
                "PartyB": 254708374149,
                "Remarks": "Test remarks",
-               "QueueTimeOutURL": "https://clear-hopefully-ladybird.ngrok-free.app/b2ctimeout",
-               "ResultURL": "https://clear-hopefully-ladybird.ngrok-free.app/b2cresult",
+               "QueueTimeOutURL": timeout_url,
+               "ResultURL": result_url,
                "Occasion": "occasion",
                }
     response = requests.request("POST", 'https://sandbox.safaricom.co.ke/mpesa/b2c/v3/paymentrequest', headers = headers, json = payload)

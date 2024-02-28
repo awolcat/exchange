@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import os.path as op
 import currencyapicom
 import urllib.request
@@ -10,7 +11,8 @@ from utils.redis import redisClient
 def rates(user_cards):
     dollar_to_kes = 140
     try:
-        client = currencyapicom.Client('cur_live_pOq9MrqxZeXITzs9estGrFkFUNZx1PcjF2qkuJb1')
+        token = os.getenv("CURRENCY_API_KEY")
+        client = currencyapicom.Client(token)
         # Add blended rates to card data for template
         result = client.latest(currencies=['KES'])
         dollar_to_kes = result['data']['KES']['value']

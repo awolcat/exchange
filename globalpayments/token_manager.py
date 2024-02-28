@@ -2,6 +2,7 @@
 from datetime import datetime
 import requests
 import hashlib
+import os
 from utils.redis import redisClient
 
 
@@ -14,8 +15,8 @@ class TokenManager():
               }
 
     nonce = str(datetime.now())
-    app_id = 'n1ieSIBgznD9J6NK7lJ6Y3WivSCsG50s'
-    app_key = 'HY0XBroPop0x2efG'
+    app_id = os.getenv('APP_ID')  #'n1ieSIBgznD9J6NK7lJ6Y3WivSCsG50s'
+    app_key = os.getenv('APP_KEY')  #'HY0XBroPop0x2efG'
     hash512 = hashlib.sha512()
     hash512.update(f'{nonce}{app_key}'.encode())
     secret = hash512.hexdigest()
