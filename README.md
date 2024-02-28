@@ -65,7 +65,7 @@ sudo service redis-server start
 
 The BASE_URL environment variable is crucial because Mpesa Daraja API responds via a timeout and result url which
 must be accessible over the internet.
-> Ngrok and LocalTunnel are examples of HTTP tunneling clients that you could use to get a public IP and make your local host accessible over the internet.
+> Ngrok and LocalTunnel are examples of HTTP tunneling clients that you could use to get a public IP and make your local host accessible over the internet. -*Daraja API DOCs*
 
 5. Run the script
 `$ source setup.sh`

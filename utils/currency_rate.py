@@ -24,7 +24,7 @@ def rates(user_cards):
         usd_rate = float(card['usd_rate'])
         dollar_to_kes = dollar_to_kes
         blended_rate = usd_rate * dollar_to_kes
-        card['blended_rate'] = str(blended_rate)
+        card['blended_rate'] = str(round(blended_rate))
         cards.append(card)
     return cards
         

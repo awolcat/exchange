@@ -177,7 +177,7 @@ def change():
                                                     { '$set': {
                                                                'masked_card': selected_cc['masked_card_number'],
                                                                'mpesa_reference': b2c_response['ConversationID'],
-                                                               'kes_amount': kes_amt,
+                                                               'kes_amount': round(kes_amt),
                                                               }
                                                     })
                 flash('Transaction Success!')
