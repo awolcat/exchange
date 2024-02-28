@@ -1,1 +1,15 @@
+source env/bin/activate
+
+pip install requirements.txt
+
 ngrok http http://0.0.0.0:5000 --domain=clear-hopefully-ladybird.ngrok-free.app
+
+MPesa credentials:
+	username = "XNnNSz3TmyFsSJ1C7bwktTQht8TwxrRtrA0GusxrdYLGfcOq"
+	password = "Ukln6WdcnXsXS4PTKgHWOk9nuSAWJ2ApeFx8lDBgAuhSXUUmSGfNi5G0dvhjDKBe"
+
+GlobalPay creadentials:
+	app_id = 'n1ieSIBgznD9J6NK7lJ6Y3WivSCsG50s'
+	app_key = 'HY0XBroPop0x2efG'
+
+

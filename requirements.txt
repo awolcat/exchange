@@ -6,10 +6,13 @@ cffi==1.16.0
 charset-normalizer==3.3.2
 click==8.1.7
 cryptography==42.0.5
+currencyapicom==0.1.1
 dnspython==2.6.1
+everapi==0.1.1
 flask==3.0.2
 Flask-Login==0.6.3
 flask-session==0.6.0
+forex-python==1.8
 idna==3.6
 importlib-metadata==7.0.1
 itsdangerous==2.1.2
@@ -20,6 +23,7 @@ pymongo==4.6.1
 pyOpenSSL==24.0.0
 redis==5.0.1
 requests==2.31.0
+simplejson==3.19.2
 urllib3==2.2.1
 werkzeug==3.0.1
 wtforms==3.1.2

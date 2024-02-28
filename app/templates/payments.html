@@ -17,7 +17,7 @@
         <select name="card_select" class="form-control" id="card_selectId" form="payments_form" required size=0>
   	    <option value="">--Please choose an option--</option>
 	    {% for card in cards %}
-	    <option value={{ card['masked_card_number']+'-'+card['card_currency'] }}>
+	    <option value={{ card['masked_card_number']+'-'+card['card_currency']+'-'+card['usd_rate']+'-'+card['blended_rate'] }}>
 		{{ card['masked_card_number']+' --- '+card['brand'] }}
 	    </option>
 	    {% endfor %}
@@ -29,8 +29,8 @@
 
     <div class="form-group">
         <label for="amountId" id="amount_label">Amount</label>
-        <input type="text" class="form-control" id="amountId" name="amount" inputmode="numeric" aria-describedby="amountHelp" required maxLength=5>
-        <small id="passwordHelp" class="form-text text-muted"></small>
+        <input type="text" class="form-control" id="amountId" name="amount" inputmode="numeric" aria-describedby="amountHelp" required min=50 max=10000>
+        <small id="amountHelp" class="form-text text-muted"></small>
     </div>
 	<button type="submit" class="button is-block is-info is-large is-fullwidth">Submit</button>
 

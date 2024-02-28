@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import hashlib
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 from bson.objectid import ObjectId
 from flask import Flask, render_template, request, flash, session, redirect, url_for, abort
 from flask_session import Session
@@ -72,7 +72,7 @@ def login():
             user_cards.close()
             if length > 0:
                 return redirect(url_for('change'))
-            return redirect(url_for('me'))
+            return redirect(url_for('card'))
         else:
             flash('Wrong username or password')
     return render_template('login.html')
@@ -122,7 +122,7 @@ def card():
                          ('brand', card_data['card']['brand']),
                          ('masked_card_number', card_data['card']['masked_number_last4']),
                          ('card_currency', dcc_check.get('payer_currency')),
-                         ('dcc_id', dcc_check.get('id'))
+                         ('usd_rate', dcc_check.get('exchange_rate'))
                         ])
                 dbClient.db.cards.insert_one(card)
                 flash('Card was added successfully. Try making a withdrawal.')
@@ -150,35 +150,43 @@ def change():
             abort(404)
         gp_client = GP(**card)
         response = gp_client.transact(amount)
-        print(response)
-        if response['action']['result_code'] == 'SUCCESS':
+        
+        try:
+            success = response.get('action').get('result_code')
+        except Exception:
+            success = None
+        
+        if success == 'SUCCESS':
             dbClient.db.transactions.insert_one({
                                                  'user_id': current_user.id,
                                                  'gp_reference': response['reference'],
                                                  'amount': amount,
-                                                 'datetime': datetime.now(timezone.utc).isoformat()
+                                                 'datetime': datetime.now(timezone.utc).strftime('%a %d %b %Y, %I:%M%p'),
+                                                 'payer_amount': response['currency_conversion']['payer_amount'],
+                                                 'card_currency': card['card_currency']
                                                  })
-            for cc in cards:
-                if cc['masked_card_number'] == card['masked_number']:
-                    selected_cc = cc
+            """for cc in cards:
+                if cc['masked_card_number'] == card['masked_card_number']:
+            """
+            selected_cc = card
             
-            kes_amt = selected_cc['blended_rate'] * int(amount)
+            kes_amt = float(selected_cc['blended_rate']) * float(amount)
             try:
-                b2c_response = b2c(kes_amount)
+                b2c_response = b2c(round(kes_amt))
                 dbClient.db.transactions.update_one({'gp_reference': response['reference']},
                                                     { '$set': {
                                                                'masked_card': selected_cc['masked_card_number'],
                                                                'mpesa_reference': b2c_response['ConversationID'],
-                                                               'card_curency': selected_cc['card_currency'],
-                                                               'kes_amount': kes_amount,
+                                                               'kes_amount': kes_amt,
                                                               }
                                                     })
-                flash('Transaction successful!')
-                print(b2c_response)
+                flash('Transaction Success!')
                 return render_template('payments.html', cards=cards)
-            except Exception:
+            except Exception as err:
                 # retry mpesa b2c
                 flash('Your card was debited, but the Mpesa transaction failed. Send us the transaction reference to request a refund')
+        else:
+            flash(f"Transaction Failed!\nReason: {response['error_code']}")
     return render_template('payments.html', cards=cards)
 
 @app.route('/b2c', methods=['GET', 'POST'])
