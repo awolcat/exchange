@@ -34,5 +34,4 @@ class User(UserMixin):
     @classmethod
     def get(cls, user_id):
         usr = dbClient.db.users.find_one({'_id': ObjectId(user_id)})
-        print(usr)
         return cls(**usr)

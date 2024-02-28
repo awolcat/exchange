@@ -27,6 +27,7 @@ class GP():
         self.cvv = kwargs.get('cvv')
         self.exp_month = kwargs.get('expiry').split('/')[0]
         self.exp_year = kwargs.get('expiry').split('/')[1]
+        self.dcc_id = kwargs.get('dcc_id')
 
     def verify(self):
         url = f'{GP.api}verifications'
@@ -89,8 +90,9 @@ class GP():
 
 
     def transact(self, amount):
-        dcc_check = self.dcc(amount)
-        dcc_id = dcc_check.get('status', None)
+        #dcc_check = self.dcc(amount)
+        #print(dcc_check)
+        #dcc_id = dcc_check.get('status', None)
         url = f'{GP.api}transactions'
 
         body = {
@@ -110,9 +112,8 @@ class GP():
                                             }
                                    }
                 }
-        if dcc_id == 'AVAILABLE':
-            temp = {'currency_conversion': {'id': dcc_id}, }
-            body.update(temp)
+        temp = {'currency_conversion': {'id': self.dcc_id}, }
+        body.update(temp)
         response = requests.post(url, headers=GP.headers, json=body)
         return response.json()
 

@@ -17,7 +17,7 @@
         <select name="card_select" class="form-control" id="card_selectId" form="payments_form" required size=0>
   	    <option value="">--Please choose an option--</option>
 	    {% for card in cards %}
-	    <option value={{ card['masked_card_number']+'-'+card['currency'] }}>
+	    <option value={{ card['masked_card_number']+'-'+card['card_currency'] }}>
 		{{ card['masked_card_number']+' --- '+card['brand'] }}
 	    </option>
 	    {% endfor %}

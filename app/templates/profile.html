@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-
+<div class="container">
+<div class="text-start h2">Welcome back, {{ user['firstname'] }}</div>
 <ul class="nav nav-tabs" id="myTab" role="tablist">
   <li class="nav-item">
     <a class="nav-link active h3 text-secondary-emphasis" id="cards-tab" data-toggle="tab" href="#cards" role="tab" aria-controls="cards" aria-selected="true">Cards</a>
@@ -12,12 +13,16 @@
 </ul>
 <div class="tab-content" id="myTabContent">
   <div class="tab-pane fade show active" id="cards" role="tabpanel" aria-labelledby="cards-tab">
-	<div class="row">
-	    <a href="{{ url_for('card') }}" class="h3">
-		    + Add Card
-	    </a>
+	<div class="row justify-content-start">
+	    <div class="col">
+            	<a href="{{ url_for('card') }}" class="h3">
+                    + Add Card
+            	</a>
+            </div>
+	</div>
+	  <div class="row">
 	    {% for card in cards %}
-  	    <div class="col-sm-6">
+  	    <div class="col-4">
     		<div class="card">
       		    <div class="card-body">
 			    <h5 class="card-title">{{ card['brand'] }}</h5>
@@ -51,5 +56,6 @@
 	    </tbody>
 	</table>
   </div>
+</div>
 </div>
 {% endblock %}

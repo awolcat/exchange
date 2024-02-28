@@ -3,7 +3,7 @@
 import hashlib
 from datetime import timedelta, datetime
 from bson.objectid import ObjectId
-from flask import Flask, render_template, request, flash, session, redirect, url_for
+from flask import Flask, render_template, request, flash, session, redirect, url_for, abort
 from flask_session import Session
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from uuid import uuid4
@@ -93,7 +93,7 @@ def me():
     user = dbClient.db.users.find_one({'_id': ObjectId(current_user.id)})
     user['_id'] = str(user['_id'])
     user = User(**user)
-    cards_curs = dbClient.db.users.find({'user_id': user.id})
+    cards_curs = dbClient.db.cards.find({'user_id': user.id})
     cards = [c for c in cards_curs]
     cards_curs.close()
     transactions_c = dbClient.db.transactions.find({'user_id': user.id})
@@ -111,6 +111,7 @@ def card():
                 'cvv': form['cvv'],
                }
         gp_client = GP(**card)
+        
         try:
             verification = gp_client.verify()
             dcc_check = gp_client.dcc(200)
@@ -120,11 +121,13 @@ def card():
                          ('payment_token', card_data['id']),
                          ('brand', card_data['card']['brand']),
                          ('masked_card_number', card_data['card']['masked_number_last4']),
-                         ('card_currency', dcc_check['payer_currrency']),
+                         ('card_currency', dcc_check.get('payer_currency')),
+                         ('dcc_id', dcc_check.get('id'))
                         ])
                 dbClient.db.cards.insert_one(card)
-                return redirect(url_for('change'))
-        except Exception:
+                flash('Card was added successfully. Try making a withdrawal.')
+                return redirect(url_for('me'))
+        except Exception as err:
             flash('There was a problem adding this card. Try again in a few minutes or try another card.')
     return render_template('card_form.html')
 
@@ -139,6 +142,7 @@ def change():
     if request.method == 'POST':
         amount = request.form['amount']
         masked_card = request.form['selection']
+        card = None
         for c in cards:
             if c['masked_card_number'] == masked_card:
                 card = c
@@ -146,6 +150,7 @@ def change():
             abort(404)
         gp_client = GP(**card)
         response = gp_client.transact(amount)
+        print(response)
         if response['action']['result_code'] == 'SUCCESS':
             dbClient.db.transactions.insert_one({
                                                  'user_id': current_user.id,
