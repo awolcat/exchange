@@ -1,16 +1,26 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-    <div class="notification is-danger">
-        {{ messages[0] }}
-    </div>
-{% endif %}
-{% endwith %}
+<div class="box">
 <div class="column is-4 is-offset-4">
-    <h3 class="title">Add a Card</h3>
+    <h3 class="title" style="color:#00d1b2;">Add a Card</h3>
 </div>
+<div class="box">
+{% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      {% for category, message in messages %}
+      {% if category == 'danger' %}
+        <div class="notification is-danger">
+           {{ message }}
+        </div>
+     {% else %}
+        <div class="notification is-success">
+           {{ message }}
+        </div>
+     {% endif %}
+     {% endfor %}
+     {% endif %}
+     {% endwith %}
 <form action = "/card" method = "POST">
   <div class="row">
     <div class="form-group col">
@@ -49,4 +59,5 @@
 	<button type="submit" class="btn btn-primary">Submit</button>
 
 </form>
+</div>
 {% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+   <div class="column is-4 is-offset-4">
+    <h1 class="h1">Exchange</h1>
+   </div>
+  <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+  <main role="main" class="inner cover" style="margin-bottom:25px;">
+    <h1 class="h3"></h1>
+    <p class="h5" style="margin-bottom:25px;">Exchange allows you to receive KES via MPesa easily from your Bank. With over 100 supported currencies, Exchange makes the process of currency exchange easier than ever before.</p>
+    <p class="lead">
+      <a href="/register" class="btn btn-lg btn-secondary">Sign Up</a>
+    </p>
+  </main>
+
+  <div class="row" style="margin-bottom:25px;">
+    <div class="col">
+	    <img alt="many supported currencies" src="../static/images/rates.png"></img>
+    </div>
+    <div class="col">
+            <img alt="competitive rates" src="../static/images/rates2.png"></img>
+    </div>
+    <div class="col">
+            <img alt="user friendly" src="../static/images/rates3.png"></img>
+    </div>
+  </div>
+  <footer class="mastfoot mt-auto">
+    <div class="inner">
+	    <p>A Flask and Bootstrap project, by <a href="https://twitter.com/awol_cat">@awol_cat</a>.</p>
+    </div>
+  </footer>
+  </div>
+</div>
+{% endblock %}

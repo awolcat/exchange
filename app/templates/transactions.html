@@ -1,6 +1,7 @@
 {% extends "profile.html" %}
 
 {% block details %}
+<div class="container">
 <ul class="nav nav-tabs">
   <li class="nav-item">
     <a class="nav-link" href="{{ url_for('my_transactions') }}">Transactions</a>
@@ -9,4 +10,5 @@
     <a class="nav-link" href="{{ url_for('my_cards') }}">Cards</a>
   </li>
 </ul>
+</div>
 {% endblock %}

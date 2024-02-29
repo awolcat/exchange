@@ -10,9 +10,7 @@
 
 2. Add a card
 
-**Note: The App currently runs in a sandbox environent. It is NOT advised to use a real card. Use one of the following cards offered by Global Payments, the Payment Gateway API used in this project**
-- **VISA 5425230000004415**
-- **MASTERCARD 4263970000005262**
+**Note: The App currently runs in a sandbox environent. Do NOT use a real card. Use a [test card](https://developer.globalpay.com/resources/test-card-numbers) from Global Payments, the Payment Gateway API used in this project**
 
 ![card registration page](exchange_images/add_card.png)
 
@@ -20,10 +18,16 @@
 
 ![withdrawals page](exchange_images/withdraw.png)
 
+4. Check out your profile page
+
+![profile page](exchange_images/profile.png)
+
 # TESTING LOCALLY
 
 1. Clone this repository
-`git clone https://github.com/awolcat/exchange.git`
+```
+git clone https://github.com/awolcat/exchange.git
+```
 
 2. Navigate to the root of the repository, create a virtual environment, and activate the virtual environment
 ```
@@ -33,7 +37,9 @@ $ source env/bin/activate
 ```
 
 3. Install dependencies
-`$ pip install requirements.txt`
+```
+$ pip install requirements.txt
+```
 
 4. Get the required API Credentials and fill them in the following starter script
 *setup.sh*
@@ -68,11 +74,15 @@ must be accessible over the internet.
 > Ngrok and LocalTunnel are examples of HTTP tunneling clients that you could use to get a public IP and make your local host accessible over the internet. -*Daraja API DOCs*
 
 5. Run the script
-`$ source setup.sh`
+```
+$ source setup.sh
+```
 
 6. In a seperate terminal, start your tunnelling service
 
 7. From the root of the repository, run the app
-`python3 -m app.app`
+```
+$ python3 -m app.app
+```
 
 8. Enjoy!

@@ -48,7 +48,7 @@ def register():
         userId = dbClient.db.users.insert_one(user).inserted_id
 
         return redirect(url_for('login'))
-    return render_template('signup.html')
+    return render_template('signup.html', title="Exchange - SignUp")
 
 @app.route('/login', methods=['GET', 'POST'], strict_slashes=False)
 def login():
@@ -58,13 +58,13 @@ def login():
         password = hashlib.sha1(pwd).hexdigest()
         user = dbClient.db.users.find_one({'number': number})
         if not user:
-            flash('No User Found')
+            flash('No User Found', 'danger')
             return render_template(login.html)
         user['_id'] = str(user['_id'])
         user_obj = User(**user)
         if user_obj.password == password:
             login_user(user_obj, duration=timedelta(minutes=30))
-            flash('Login Success!')
+            flash('Login Success!', 'success')
             user_cards = dbClient.db.cards.find({'user_id': user_obj.id})
             length = 0
             for c in user_cards:
@@ -74,8 +74,8 @@ def login():
                 return redirect(url_for('change'))
             return redirect(url_for('card'))
         else:
-            flash('Wrong username or password')
-    return render_template('login.html')
+            flash('Wrong username or password', 'danger')
+    return render_template('login.html', title='Exchange - Login')
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -85,7 +85,8 @@ def load_user(user_id):
 @login_required
 def logout():
     logout_user()
-    return render_template('login.html')
+    flash('Logout Success!', 'success')
+    return render_template('login.html', title="Exchange - Login")
 
 @app.route('/me')
 @login_required
@@ -98,7 +99,11 @@ def me():
     cards_curs.close()
     transactions_c = dbClient.db.transactions.find({'user_id': user.id})
     transactions = [t for t in transactions_c]
-    return render_template('profile.html', cards=cards, user=user, transactions=transactions)
+    return render_template('profile.html',
+                            cards=cards,
+                            user=user,
+                            transactions=transactions,
+                            title='Exchange - Profile')
 
 @app.route('/card', methods=['GET', 'POST'], strict_slashes=False)
 @login_required
@@ -125,11 +130,11 @@ def card():
                          ('usd_rate', dcc_check.get('exchange_rate'))
                         ])
                 dbClient.db.cards.insert_one(card)
-                flash('Card was added successfully. Try making a withdrawal.')
+                flash('Card was added successfully. Try making a withdrawal.', 'success')
                 return redirect(url_for('me'))
         except Exception as err:
-            flash('There was a problem adding this card. Try again in a few minutes or try another card.')
-    return render_template('card_form.html')
+            flash('There was a problem adding this card. Try again in a few minutes or try another card.', 'danger')
+    return render_template('card_form.html', title='Exchange - Add Card')
 
 @app.route('/payments', methods=['GET', 'POST'], strict_slashes=False)
 @login_required
@@ -181,18 +186,17 @@ def change():
                                                               }
                                                     })
                 flash('Transaction Success!')
-                return render_template('payments.html', cards=cards)
+                return render_template('payments.html', cards=cards, title='Exchange - Transact')
             except Exception as err:
                 # retry mpesa b2c
                 flash('Your card was debited, but the Mpesa transaction failed. Send us the transaction reference to request a refund')
         else:
             flash(f"Transaction Failed!\nReason: {response['error_code']}")
-    return render_template('payments.html', cards=cards)
+    return render_template('payments.html', cards=cards, title='Exchange - Transact')
 
-@app.route('/b2c', methods=['GET', 'POST'])
-def send_moni():
-    response = b2c()
-    return response
+@app.route('/')
+def home():
+    return render_template('index.html', title='Exchange')
 
 @app.route('/b2cresult', methods=['POST'], strict_slashes=False)
 @login_required
