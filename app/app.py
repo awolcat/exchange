@@ -46,7 +46,7 @@ def register():
         if db_user:
             flash('This number is already registered')
         userId = dbClient.db.users.insert_one(user).inserted_id
-
+        flash('Signup Success!', 'success')
         return redirect(url_for('login'))
     return render_template('signup.html', title="Exchange - SignUp")
 
@@ -121,17 +121,25 @@ def card():
             verification = gp_client.verify()
             dcc_check = gp_client.dcc(200)
             if verification.get('status') == 'VERIFIED':
-                card_data = gp_client.store()
-                card.update([('user_id', current_user.id),
-                         ('payment_token', card_data['id']),
-                         ('brand', card_data['card']['brand']),
-                         ('masked_card_number', card_data['card']['masked_number_last4']),
-                         ('card_currency', dcc_check.get('payer_currency')),
-                         ('usd_rate', dcc_check.get('exchange_rate'))
-                        ])
-                dbClient.db.cards.insert_one(card)
-                flash('Card was added successfully. Try making a withdrawal.', 'success')
-                return redirect(url_for('me'))
+                dcc_check = gp_client.dcc(200)
+                if dcc_check.get('status') == 'AVAILABLE':
+                    card_data = gp_client.store()
+                    card.update([('user_id', current_user.id),
+                                 ('payment_token', card_data['id']),
+                                 ('brand', card_data['card']['brand']),
+                                 ('masked_card_number', card_data['card']['masked_number_last4']),
+                                 ('card_currency', dcc_check.get('payer_currency')),
+                                 ('usd_rate', dcc_check.get('exchange_rate'))
+                                ])
+                    dbClient.db.cards.insert_one(card)
+                    flash('Card was added successfully. Try making a withdrawal.', 'success')
+                    return redirect(url_for('change'))
+                else:
+                    flash('The card you tried to add does not support Dynamic Currency Conversion. Try another card.', 'danger')
+                    return render_template('card_form.html', title='Exchange - Add Card')
+            else:
+                flash('The card details could not be verified.', 'danger')
+                return render_template('card_form.html', title='Exchange - Add Card')
         except Exception as err:
             flash('There was a problem adding this card. Try again in a few minutes or try another card.', 'danger')
     return render_template('card_form.html', title='Exchange - Add Card')

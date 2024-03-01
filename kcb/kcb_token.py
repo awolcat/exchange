@@ -7,8 +7,8 @@ import requests
 class KCBToken():
     URL = 'https://wso2-api-gateway-direct-kcb-wso2-gateway.apps.test.aro.kcbgroup.com/token'
 
-    API_KEY = 'miVoS3Q7GlDbDhUP_JhHJRIt6d8a'
-    SECRET = 'eJvEuh_WdHnSgg2xajzVLVcNUDQa'
+    API_KEY = ''
+    SECRET = ''
 
     def __init__(self):
         self.token = None
